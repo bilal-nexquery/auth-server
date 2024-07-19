@@ -8,11 +8,7 @@ from apps.users.managers import MyUserManager
 # Create your models here.
 class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(
-        verbose_name="email address",
-        max_length=255,
-        unique=True,
-        null=False,
-        blank=False
+        verbose_name="email address", max_length=255, unique=True, null=False, blank=False
     )
     username = models.CharField(max_length=255, unique=True, null=False, blank=False)
     is_staff = models.BooleanField(default=False)

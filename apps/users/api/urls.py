@@ -1,4 +1,7 @@
-from django.contrib import admin
 from django.urls import path, include
 
-urlpatterns = []
+from apps.users.api.views import UserCreateApi
+
+urlpatterns = [
+    path("register/", UserCreateApi.as_view(), name="register"),
+]

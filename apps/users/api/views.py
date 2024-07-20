@@ -1,6 +1,6 @@
 from rest_framework import serializers, status
 
-from apps.common.validators import WhiteSpaceValidator
+from apps.common.validators import WhiteSpaceValidator, PasswordRegexValidator
 from apps.core.views import BaseAPIView
 from apps.users.services import user_create
 
@@ -12,7 +12,7 @@ class UserCreateApi(BaseAPIView):
             max_length=255, required=True, allow_blank=False, allow_null=False, validators=[WhiteSpaceValidator()]
         )
         password = serializers.CharField(
-            max_length=255, required=True, allow_blank=False, allow_null=False
+            max_length=255, required=True, allow_blank=False, allow_null=False, validators=[PasswordRegexValidator()]
         )
 
     def post(self, request):

@@ -87,7 +87,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'config.wsgi.application'
 
 REST_FRAMEWORK = {
-    'EXCEPTION_HANDLER': 'apps.core.exceptions.custom_exception_handler'
+    'EXCEPTION_HANDLER': 'apps.core.exception_handlers.custom_exception_handler'
 }
 
 

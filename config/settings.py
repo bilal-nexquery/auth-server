@@ -23,7 +23,6 @@ environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 env = environ.Env()
 environ.Env.read_env()
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
@@ -46,7 +45,10 @@ DEFAULT_APPS = [
     'django.contrib.staticfiles',
 ]
 
-THIRD_PARTY_APPS = []
+THIRD_PARTY_APPS = [
+    "rest_framework",
+    "corsheaders",
+]
 
 PROJECT_APPS = [
     "apps.users",
@@ -59,6 +61,7 @@ AUTH_USER_MODEL = "users.User"
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -90,7 +93,6 @@ REST_FRAMEWORK = {
     'EXCEPTION_HANDLER': 'apps.core.exception_handlers.custom_exception_handler'
 }
 
-
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 if PROD is False:
@@ -116,6 +118,16 @@ else:
         }
     }
 
+# Password hashers
+# https://docs.djangoproject.com/en/4.2/ref/settings/#std-setting-PASSWORD_HASHERS
+PASSWORD_HASHERS = [
+    # Using argon2 password hasher by default as it greatly boost the performance of creating user
+    "django.contrib.auth.hashers.Argon2PasswordHasher",
+    "django.contrib.auth.hashers.PBKDF2PasswordHasher",
+    "django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher",
+    "django.contrib.auth.hashers.BCryptSHA256PasswordHasher",
+    "django.contrib.auth.hashers.ScryptPasswordHasher",
+]
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -135,7 +147,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
@@ -147,6 +158,9 @@ USE_I18N = True
 
 USE_TZ = True
 
+# Cors configuration
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_CREDENTIALS = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/

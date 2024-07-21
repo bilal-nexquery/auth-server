@@ -22,7 +22,7 @@ class PasswordRegexValidator:
     """
 
     def __call__(self, value):
-        pattern = r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,20}$'
+        pattern = r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,20}$'
         if not re.fullmatch(pattern, value):
             message = "Must be 8-20 characters long, include letters and numbers"
             raise serializers.ValidationError(message)

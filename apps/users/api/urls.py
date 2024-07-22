@@ -1,7 +1,11 @@
-from django.urls import path, include
+from django.urls import path
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
-from apps.users.api.views import UserCreateApi
+from apps.users.api.views import UserCreateApi, UserLoginApi, UserListApi
 
 urlpatterns = [
     path("register/", UserCreateApi.as_view(), name="register"),
+    path("login/", UserLoginApi.as_view(), name="login"),
+    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('profile/', UserListApi.as_view(), name="user_list"),
 ]

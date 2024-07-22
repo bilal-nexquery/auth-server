@@ -17,8 +17,8 @@ class WhiteSpaceValidator:
 
 class PasswordRegexValidator:
     """
-        This method is automatically called by drf with the value of field whenever an object of
-        this class is instantiated.
+    This method is automatically called by drf with the value of field whenever an object of
+    this class is instantiated.
     """
 
     def __call__(self, value):

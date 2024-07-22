@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 import os
+from datetime import timedelta
 from pathlib import Path
 
 from environ import environ
@@ -33,6 +34,8 @@ SECRET_KEY = env("SECRET_KEY")
 DEBUG = env("DEBUG", cast=bool)
 PROD = env("PROD", cast=bool)
 
+BACKEND_BASE_URL = env("BACKEND_BASE_URL")
+
 ALLOWED_HOSTS = ["*"]
 
 # Application definition
@@ -48,6 +51,8 @@ DEFAULT_APPS = [
 THIRD_PARTY_APPS = [
     "rest_framework",
     "corsheaders",
+    "rest_framework_simplejwt",
+    'rest_framework_simplejwt.token_blacklist',
 ]
 
 PROJECT_APPS = [
@@ -90,7 +95,10 @@ TEMPLATES = [
 WSGI_APPLICATION = 'config.wsgi.application'
 
 REST_FRAMEWORK = {
-    'EXCEPTION_HANDLER': 'apps.core.exception_handlers.custom_exception_handler'
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'EXCEPTION_HANDLER': 'apps.core.exception_handlers.custom_exception_handler',
 }
 
 # Database
@@ -147,6 +155,11 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTHENTICATION_BACKENDS = [
+    'apps.core.authentication.CustomAuthBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
+
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
@@ -171,3 +184,10 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
+}

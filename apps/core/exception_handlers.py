@@ -25,7 +25,7 @@ def custom_exception_handler(exc, ctx):
         exc = CustomIntegrityError(exc.args)
 
     if isinstance(exc, Http404):
-        exc = exceptions.NotFound()
+        exc = exceptions.NotFound(exc)
 
     if isinstance(exc, PermissionDenied):
         exc = exceptions.PermissionDenied()
@@ -37,9 +37,7 @@ def custom_exception_handler(exc, ctx):
         return response
 
     if isinstance(exc.detail, (list, dict)):
-        response.data = {
-            "detail": response.data
-        }
+        response.data = {"detail": response.data}
     response.data["success"] = False
     response.data["code"] = str(response.status_code)
 
@@ -47,10 +45,13 @@ def custom_exception_handler(exc, ctx):
         response.data["message"] = "Validation error"
         response.data["description"] = response.data["detail"]
     elif isinstance(exc, exceptions.NotFound):
-        response.data["message"] = "Error"
+        response.data["message"] = "Not found"
         response.data["description"] = response.data["detail"]
     elif isinstance(exc, CustomIntegrityError):
         response.data["message"] = "Integrity Error"
+        response.data["description"] = response.data["detail"]
+    else:
+        response.data["message"] = "Other exception"
         response.data["description"] = response.data["detail"]
 
     del response.data["detail"]

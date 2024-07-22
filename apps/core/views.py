@@ -15,5 +15,6 @@ class BaseAPIView(APIView):
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
     ):
         return Response(
-            {"success": success, "code": code, "message": message, "description": description}, status=status_code
+            {"success": success, "code": code, "message": message, "description": description},
+            status=status_code,
         )

@@ -1,6 +1,3 @@
-import json
-
-import requests
 from rest_framework import serializers, status
 from rest_framework.permissions import IsAuthenticated
 
@@ -8,7 +5,6 @@ from apps.common.validators import WhiteSpaceValidator, PasswordRegexValidator
 from apps.core.authentication import CustomAuthBackend
 from apps.core.views import BaseAPIView
 from apps.users.services import user_create, user_get, user_check_password, get_tokens_for_user
-from config.settings import BACKEND_BASE_URL
 
 
 class UserCreateApi(BaseAPIView):

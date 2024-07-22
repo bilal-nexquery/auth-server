@@ -1,0 +1,11 @@
+[flake8]
+ignore = E501,W503
+exclude =
+    migrations,
+    __pycache__,
+    manage.py,
+    settings.py,
+    .gitignore,
+    venv,
+    requirements.txt,
+    README.md,

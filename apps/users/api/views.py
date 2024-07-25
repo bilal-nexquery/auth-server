@@ -1,3 +1,4 @@
+from django.http import Http404
 from rest_framework import serializers, status
 from rest_framework.permissions import IsAuthenticated
 
@@ -49,13 +50,7 @@ class UserLoginApi(BaseAPIView):
         serializer.is_valid(raise_exception=True)
         user = user_get(username=serializer.validated_data.get("username"))
         if not user_check_password(user=user, password=serializer.validated_data.get("password")):
-            return self.send_response(
-                success=False,
-                code="404",
-                message="Not found",
-                description="Incorrect password",
-                status_code=status.HTTP_404_NOT_FOUND,
-            )
+            raise Http404("Incorrect password for this account")
         self.custom_auth_backend().authenticate(request, **serializer.validated_data)
         tokens = get_tokens_for_user(user=user)
         return self.send_response(

@@ -6,6 +6,6 @@ from apps.users.api.views import UserCreateApi, UserLoginApi, UserListApi
 urlpatterns = [
     path("register/", UserCreateApi.as_view(), name="register"),
     path("login/", UserLoginApi.as_view(), name="login"),
-    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('profile/', UserListApi.as_view(), name="user_list"),
 ]

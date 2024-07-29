@@ -1,8 +1,11 @@
+import uuid
+from datetime import datetime, timedelta
+
 from django.db.models import Q
 from django.http import Http404
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from apps.users.models import User
+from apps.users.models import User, ResetPassword
 
 
 def user_create(*, email: str, username: str, password: str) -> User:
@@ -31,3 +34,27 @@ def get_tokens_for_user(*, user):
         'refresh': str(refresh),
         'access': str(refresh.access_token),
     }
+
+
+def reset_password_create_or_update(*, unique_identifier: str, user: User):
+    reset_password = user.resetpassword if hasattr(user, 'resetpassword') else ResetPassword()
+    reset_password.token = unique_identifier
+    reset_password.user = user
+    reset_password.created_or_updated_at = datetime.now()
+    reset_password.expires_at = datetime.now() + timedelta(minutes=30)
+    reset_password.save()
+
+
+def get_email_content_for_forgot_password(*, user: User, reset_password_link: str) -> tuple[str, str]:
+    subject = "Subject : Reset Your Password"
+    message = (
+        f"Dear {user.username},\n\n"
+        f"We have received a request to reset your password.\n"
+        f"To reset your password, please click on the following link:\n{reset_password_link}\n\n"
+        f"If you did not request to reset your password, "
+        f"Please ignore this email and your account will remain unchanged.\n"
+        f"Please note that the link will expire in 30 Minutes. If the link expires, "
+        f"you will need to request another password reset.\n\n"
+        f"Thank you,\n\nOperations Team."
+    )
+    return subject, message

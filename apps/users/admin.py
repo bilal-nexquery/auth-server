@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import Group
 
-from apps.users.models import User
+from apps.users.models import User, ResetPassword
 
 
 # Register your models here.
@@ -58,3 +58,4 @@ class CustomUserAdmin(UserAdmin):
 admin.site.unregister(Group)
 
 admin.site.register(User, CustomUserAdmin)
+admin.site.register(ResetPassword)

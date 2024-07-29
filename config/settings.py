@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 import os
+import ssl
 from datetime import timedelta
 from pathlib import Path
 
@@ -34,7 +35,11 @@ SECRET_KEY = env("SECRET_KEY")
 DEBUG = env("DEBUG", cast=bool)
 PROD = env("PROD", cast=bool)
 
+FRONTEND_BASE_URL = env("FRONTEND_BASE_URL")
 BACKEND_BASE_URL = env("BACKEND_BASE_URL")
+
+SEND_EMAIL_HOST = env("SEND_EMAIL_HOST")
+SEND_EMAIL_PASSWORD = env("SEND_EMAIL_PASSWORD")
 
 ALLOWED_HOSTS = ["*"]
 
@@ -100,6 +105,31 @@ REST_FRAMEWORK = {
     ),
     'EXCEPTION_HANDLER': 'apps.core.exception_handlers.custom_exception_handler',
 }
+
+# Email configuration
+SSL_VERSION = ssl.PROTOCOL_TLSv1_2
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = env("EMAIL_HOST")
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+
+# SSL/TLS configuration
+EMAIL_USE_SSL = False
+EMAIL_SSL_KEYFILE = None
+EMAIL_SSL_CERTFILE = None
+EMAIL_TIMEOUT = None
+EMAIL_SSL_CIPHERS = None
+EMAIL_SSL_KEYFILE_PASSWORD = None
+EMAIL_TLS_CERTFILE = None
+EMAIL_TLS_KEYFILE = None
+EMAIL_TLS_KEYFILE_PASSWORD = None
+EMAIL_TLS_CA_CERTS = None
+
+# SSL/TLS version
+EMAIL_SSL_VERSION = SSL_VERSION
+EMAIL_TLS_VERSION = SSL_VERSION
+
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases

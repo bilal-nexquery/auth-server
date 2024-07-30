@@ -1,5 +1,6 @@
 from django.http import Http404
 from rest_framework import serializers, status
+from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 
 from apps.common.utils import send_email, get_unique_identifier_stamp
@@ -7,7 +8,8 @@ from apps.common.validators import WhiteSpaceValidator, PasswordRegexValidator
 from apps.core.authentication import CustomAuthBackend
 from apps.core.views import BaseAPIView
 from apps.users.services import user_create, user_get, user_check_password, get_tokens_for_user, \
-    get_email_content_for_forgot_password, reset_password_create_or_update
+    get_email_content_for_forgot_password, reset_password_create_or_update, reset_password_get, \
+    reset_password_validation
 from config import settings
 
 
@@ -92,6 +94,40 @@ class UserForgotPasswordApi(BaseAPIView):
         return self.send_response(
             success=True,
             code="201",
-            description="Reset password link sent successfully, PLease check your email",
+            description="Reset password link sent successfully, Please check your email.",
             status_code=status.HTTP_201_CREATED,
+        )
+
+
+class UserResetPasswordValidateAPI(BaseAPIView):
+    def get(self, request, token: str):
+        reset_password = reset_password_get(token=token)
+        reset_password_validation(reset_password=reset_password)
+        return self.send_response(
+            success=True,
+            code="200",
+            description="Link validated successfully",
+            status_code=status.HTTP_200_OK,
+        )
+
+
+class UserResetPasswordApi(BaseAPIView):
+    class InputSerializer(serializers.Serializer):
+        password = serializers.CharField(required=True, allow_blank=False, allow_null=False,
+                                         validators=[PasswordRegexValidator()])
+
+    def post(self, request, token: str):
+        serializer = self.InputSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        reset_password = reset_password_get(token=token)
+        reset_password_validation(reset_password=reset_password)
+        reset_password.user.set_password(serializer.validated_data.get("password"))
+        reset_password.is_blacklisted = True
+        reset_password.save()
+        reset_password.user.save()
+        return self.send_response(
+            success=True,
+            code="200",
+            description="Password reset successfully, Please login with new password",
+            status_code=status.HTTP_200_OK,
         )

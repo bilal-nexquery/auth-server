@@ -1,8 +1,9 @@
-import uuid
-from datetime import datetime, timedelta
+from django.utils import timezone
+from datetime import timedelta
 
 from django.db.models import Q
 from django.http import Http404
+from rest_framework.exceptions import ValidationError
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from apps.users.models import User, ResetPassword
@@ -37,12 +38,11 @@ def get_tokens_for_user(*, user):
 
 
 def reset_password_create_or_update(*, unique_identifier: str, user: User):
-    reset_password = user.resetpassword if hasattr(user, 'resetpassword') else ResetPassword()
-    reset_password.token = unique_identifier
-    reset_password.user = user
-    reset_password.created_or_updated_at = datetime.now()
-    reset_password.expires_at = datetime.now() + timedelta(minutes=30)
-    reset_password.save()
+    defaults = {"token": unique_identifier, "created_or_updated_at": timezone.now(),
+                "expires_at": timezone.now() + timedelta(minutes=30), "user": user, "is_blacklisted": False}
+    ResetPassword.objects.update_or_create(
+        user=user, defaults=defaults
+    )
 
 
 def get_email_content_for_forgot_password(*, user: User, reset_password_link: str) -> tuple[str, str]:
@@ -58,3 +58,20 @@ def get_email_content_for_forgot_password(*, user: User, reset_password_link: st
         f"Thank you,\n\nOperations Team."
     )
     return subject, message
+
+
+def reset_password_get(*, token: str) -> ResetPassword:
+    try:
+        reset_password = ResetPassword.objects.get(token=token)
+        return reset_password
+    except ResetPassword.DoesNotExist:
+        raise Http404("The provided link is invalid.")
+
+
+def reset_password_validation(*, reset_password: ResetPassword):
+    if reset_password.expires_at < timezone.now():
+        raise ValidationError("The provided link has expired, Please request a new password reset email.")
+    if reset_password.is_blacklisted:
+        raise ValidationError("Link already used for reset password, Please request a new password reset email.")
+
+

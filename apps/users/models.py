@@ -2,7 +2,6 @@ from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
 from django.db import models
 
-from apps.common.models import Log
 from apps.users.managers import MyUserManager
 from config import settings
 
@@ -26,7 +25,9 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 
 class ResetPassword(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=False, blank=False)
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=False, blank=False
+    )
     token = models.CharField(max_length=255, unique=True, null=False, blank=False)
     is_blacklisted = models.BooleanField(default=False)
     created_or_updated_at = models.DateTimeField(null=False, blank=False)

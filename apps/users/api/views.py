@@ -1,15 +1,21 @@
 from django.http import Http404
 from rest_framework import serializers, status
-from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 
 from apps.common.utils import send_email, get_unique_identifier_stamp
 from apps.common.validators import WhiteSpaceValidator, PasswordRegexValidator
 from apps.core.authentication import CustomAuthBackend
 from apps.core.views import BaseAPIView
-from apps.users.services import user_create, user_get, user_check_password, get_tokens_for_user, \
-    get_email_content_for_forgot_password, reset_password_create_or_update, reset_password_get, \
-    reset_password_validation
+from apps.users.services import (
+    user_create,
+    user_get,
+    user_check_password,
+    get_tokens_for_user,
+    get_email_content_for_forgot_password,
+    reset_password_create_or_update,
+    reset_password_get,
+    reset_password_validation,
+)
 from config import settings
 
 
@@ -89,7 +95,9 @@ class UserForgotPasswordApi(BaseAPIView):
         unique_identifier = get_unique_identifier_stamp()
         reset_password_create_or_update(unique_identifier=unique_identifier, user=user)
         reset_password_link = f"{settings.FRONTEND_BASE_URL}/reset-password/{unique_identifier}/"
-        subject, message = get_email_content_for_forgot_password(user=user, reset_password_link=reset_password_link)
+        subject, message = get_email_content_for_forgot_password(
+            user=user, reset_password_link=reset_password_link
+        )
         send_email(to=user.email, subject=subject, message=message)
         return self.send_response(
             success=True,
@@ -113,8 +121,12 @@ class UserResetPasswordValidateAPI(BaseAPIView):
 
 class UserResetPasswordApi(BaseAPIView):
     class InputSerializer(serializers.Serializer):
-        password = serializers.CharField(required=True, allow_blank=False, allow_null=False,
-                                         validators=[PasswordRegexValidator()])
+        password = serializers.CharField(
+            required=True,
+            allow_blank=False,
+            allow_null=False,
+            validators=[PasswordRegexValidator()],
+        )
 
     def post(self, request, token: str):
         serializer = self.InputSerializer(data=request.data)

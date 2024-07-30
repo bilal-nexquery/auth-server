@@ -38,14 +38,19 @@ def get_tokens_for_user(*, user):
 
 
 def reset_password_create_or_update(*, unique_identifier: str, user: User):
-    defaults = {"token": unique_identifier, "created_or_updated_at": timezone.now(),
-                "expires_at": timezone.now() + timedelta(minutes=30), "user": user, "is_blacklisted": False}
-    ResetPassword.objects.update_or_create(
-        user=user, defaults=defaults
-    )
+    defaults = {
+        "token": unique_identifier,
+        "created_or_updated_at": timezone.now(),
+        "expires_at": timezone.now() + timedelta(minutes=30),
+        "user": user,
+        "is_blacklisted": False,
+    }
+    ResetPassword.objects.update_or_create(user=user, defaults=defaults)
 
 
-def get_email_content_for_forgot_password(*, user: User, reset_password_link: str) -> tuple[str, str]:
+def get_email_content_for_forgot_password(
+    *, user: User, reset_password_link: str
+) -> tuple[str, str]:
     subject = "Subject : Reset Your Password"
     message = (
         f"Dear {user.username},\n\n"
@@ -70,8 +75,10 @@ def reset_password_get(*, token: str) -> ResetPassword:
 
 def reset_password_validation(*, reset_password: ResetPassword):
     if reset_password.expires_at < timezone.now():
-        raise ValidationError("The provided link has expired, Please request a new password reset email.")
+        raise ValidationError(
+            "The provided link has expired, Please request a new password reset email."
+        )
     if reset_password.is_blacklisted:
-        raise ValidationError("Link already used for reset password, Please request a new password reset email.")
-
-
+        raise ValidationError(
+            "Link already used for reset password, Please request a new password reset email."
+        )

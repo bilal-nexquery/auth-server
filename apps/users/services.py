@@ -70,7 +70,7 @@ def reset_password_get(*, token: str) -> ResetPassword:
         reset_password = ResetPassword.objects.get(token=token)
         return reset_password
     except ResetPassword.DoesNotExist:
-        raise Http404("The provided link is invalid.")
+        raise Http404("The provided link is broken.")
 
 
 def reset_password_validation(*, reset_password: ResetPassword):

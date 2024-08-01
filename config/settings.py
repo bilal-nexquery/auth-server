@@ -54,6 +54,7 @@ DEFAULT_APPS = [
 ]
 
 THIRD_PARTY_APPS = [
+    "whitenoise.runserver_nostatic",
     "rest_framework",
     "corsheaders",
     "rest_framework_simplejwt",
@@ -70,6 +71,7 @@ AUTH_USER_MODEL = "users.User"
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     'django.contrib.sessions.middleware.SessionMiddleware',
     "corsheaders.middleware.CorsMiddleware",
     'django.middleware.common.CommonMiddleware',
@@ -207,6 +209,8 @@ CORS_ALLOW_CREDENTIALS = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
+
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 STATIC_URL = 'static/'
 MEDIA_URL = "/media/"

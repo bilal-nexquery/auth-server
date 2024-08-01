@@ -69,6 +69,8 @@ INSTALLED_APPS = DEFAULT_APPS + THIRD_PARTY_APPS + PROJECT_APPS
 
 AUTH_USER_MODEL = "users.User"
 
+CSRF_TRUSTED_ORIGINS = ['https://auth-server-production-7040.up.railway.app/']
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     "whitenoise.middleware.WhiteNoiseMiddleware",

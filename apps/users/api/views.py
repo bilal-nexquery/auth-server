@@ -190,8 +190,8 @@ class UserLoginWithGoogleApi(BaseAPIView):
         tokens = get_tokens_for_user(user=user)
 
         response = redirect(settings.BASE_FRONTEND_URL)
-        response.set_cookie("accessToken", tokens.get("access"))
-        response.set_cookie("refreshToken", tokens.get("refresh"))
-        response.set_cookie("oAuth", True)
+        response.set_cookie("accessToken", tokens.get("access"), samesite='None', secure=True)
+        response.set_cookie("refreshToken", tokens.get("refresh"), samesite='None', secure=True)
+        response.set_cookie("oAuth", True, samesite='None', secure=True)
 
         return response

@@ -1,3 +1,6 @@
+import time
+
+import requests
 from django.utils import timezone
 from datetime import timedelta
 
@@ -7,6 +10,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from apps.users.models import User, ResetPassword
+from config import settings
 
 
 def user_create(*, email: str, username: str, password: str) -> User:
@@ -22,6 +26,11 @@ def user_get(*, username: str) -> User:
         return user
     except User.DoesNotExist:
         raise Http404("No user with this email or username exists.")
+
+
+def user_check_social_account(*, user: User):
+    if user.is_social:
+        raise Http404("This email is linked with a social account please set the password using reset password first.")
 
 
 def user_check_password(*, user: User, password: str) -> bool:
@@ -49,7 +58,7 @@ def reset_password_create_or_update(*, unique_identifier: str, user: User):
 
 
 def get_email_content_for_forgot_password(
-    *, user: User, reset_password_link: str
+        *, user: User, reset_password_link: str
 ) -> tuple[str, str]:
     subject = "Subject : Reset Your Password"
     message = (
@@ -82,3 +91,50 @@ def reset_password_validation(*, reset_password: ResetPassword):
         raise ValidationError(
             "Link already used for reset password, Please request a new password reset email."
         )
+
+
+class GoogleOAuth2FlowService:
+    def __init__(self):
+        self.GOOGLE_ACCESS_TOKEN_OBTAIN_URL = "https://oauth2.googleapis.com/token"
+        self.GOOGLE_GET_USER_INFO_URL = "https://www.googleapis.com/oauth2/v3/userinfo"
+        self.GOOGLE_OAUTH2_CLIENT_ID = settings.GOOGLE_OAUTH2_CLIENT_ID
+        self.GOOGLE_OAUTH2_CLIENT_SECRET = settings.GOOGLE_OAUTH2_CLIENT_SECRET
+
+    def get_access_token(self, *, code: str, redirect_uri: str) -> str:
+        # Reference: https://developers.google.com/identity/protocols/oauth2/web-server#obtainingaccesstokens
+        data = {
+            'code': code,
+            'client_id': self.GOOGLE_OAUTH2_CLIENT_ID,
+            'client_secret': self.GOOGLE_OAUTH2_CLIENT_SECRET,
+            'redirect_uri': redirect_uri,
+            'grant_type': 'authorization_code',
+        }
+
+        response = requests.post(self.GOOGLE_ACCESS_TOKEN_OBTAIN_URL, data=data)
+
+        if not response.ok:
+            raise ValidationError('Failed to obtain access token from Google.')
+
+        access_token = response.json()['access_token']
+
+        return access_token
+
+    def get_user_info(self, *, access_token: str) -> dict:
+        response = requests.get(
+            self.GOOGLE_GET_USER_INFO_URL, params={"access_token": access_token}
+        )
+
+        if not response.ok:
+            raise ValidationError("Failed to obtain user info from Google.")
+
+        return response.json()
+
+    @staticmethod
+    def create_username_from_google_response(user_data: dict) -> str:
+        return f'{user_data.get("given_name", "")}_{user_data.get("family_name", "")}_{str(int(time.time()))}'.lower()
+
+
+def user_get_or_create_oauth(*, user_profile_data: dict) -> User:
+    defaults = user_profile_data
+    user, _ = User.objects.get_or_create(email=user_profile_data.get("email"), defaults=defaults)
+    return user

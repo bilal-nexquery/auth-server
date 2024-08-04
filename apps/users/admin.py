@@ -10,6 +10,7 @@ class CustomUserAdmin(UserAdmin):
     list_display = (
         "email",
         "username",
+        "is_social",
     )
     search_fields = ("email",)
     ordering = ("-id",)
@@ -22,6 +23,7 @@ class CustomUserAdmin(UserAdmin):
                 "fields": (
                     "email",
                     "password",
+                    "is_social",
                 )
             },
         ),

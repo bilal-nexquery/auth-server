@@ -1,4 +1,8 @@
+from urllib.parse import urlencode
+
 from django.http import Http404
+from django.shortcuts import redirect
+from django.urls import reverse
 from rest_framework import serializers, status
 from rest_framework.permissions import IsAuthenticated
 
@@ -15,6 +19,8 @@ from apps.users.services import (
     reset_password_create_or_update,
     reset_password_get,
     reset_password_validation,
+    GoogleOAuth2FlowService,
+    user_get_or_create_oauth, user_check_social_account,
 )
 from config import settings
 
@@ -60,6 +66,7 @@ class UserLoginApi(BaseAPIView):
         serializer = self.InputSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = user_get(username=serializer.validated_data.get("username"))
+        user_check_social_account(user=user)
         if not user_check_password(user=user, password=serializer.validated_data.get("password")):
             raise Http404("Incorrect password for this account")
         self.custom_auth_backend().authenticate(request, **serializer.validated_data)
@@ -94,7 +101,7 @@ class UserForgotPasswordApi(BaseAPIView):
         user = user_get(username=serializer.validated_data.get("username"))
         unique_identifier = get_unique_identifier_stamp()
         reset_password_create_or_update(unique_identifier=unique_identifier, user=user)
-        reset_password_link = f"{settings.FRONTEND_BASE_URL}/reset-password/{unique_identifier}/"
+        reset_password_link = f"{settings.BASE_FRONTEND_URL}/reset-password/{unique_identifier}/"
         subject, message = get_email_content_for_forgot_password(
             user=user, reset_password_link=reset_password_link
         )
@@ -134,6 +141,7 @@ class UserResetPasswordApi(BaseAPIView):
         reset_password = reset_password_get(token=token)
         reset_password_validation(reset_password=reset_password)
         reset_password.user.set_password(serializer.validated_data.get("password"))
+        reset_password.user.is_social = False
         reset_password.is_blacklisted = True
         reset_password.save()
         reset_password.user.save()
@@ -143,3 +151,47 @@ class UserResetPasswordApi(BaseAPIView):
             description="Password reset successfully, Please login with new password",
             status_code=status.HTTP_200_OK,
         )
+
+
+class UserLoginWithGoogleApi(BaseAPIView):
+    class InputSerializer(serializers.Serializer):
+        code = serializers.CharField(required=False)
+        error = serializers.CharField(required=False)
+
+    def get(self, request):
+        serializer = self.InputSerializer(data=request.GET)
+        serializer.is_valid(raise_exception=True)
+
+        code = serializer.validated_data.get('code')
+        error = serializer.validated_data.get('error')
+        login_url = f'{settings.BASE_FRONTEND_URL}/login'
+
+        if error or not code:
+            params = urlencode({'error': error, 'type': "oAuth"})
+            return redirect(f'{login_url}?{params}')
+
+        google_login = GoogleOAuth2FlowService()
+
+        domain = settings.BASE_BACKEND_URL
+        api_uri = reverse('login-with-google')
+        redirect_uri = f'{domain}{api_uri}'
+
+        access_token = google_login.get_access_token(code=code, redirect_uri=redirect_uri)
+        user_data = google_login.get_user_info(access_token=access_token)
+
+        username = google_login.create_username_from_google_response(user_data=user_data)
+        user_profile_data = {
+            'email': user_data['email'],
+            'username': username,
+            "is_social": True
+        }
+
+        user = user_get_or_create_oauth(user_profile_data=user_profile_data)
+        tokens = get_tokens_for_user(user=user)
+
+        response = redirect(settings.BASE_FRONTEND_URL)
+        response.set_cookie("accessToken", tokens.get("access"))
+        response.set_cookie("refreshToken", tokens.get("refresh"))
+        response.set_cookie("oAuth", True)
+
+        return response

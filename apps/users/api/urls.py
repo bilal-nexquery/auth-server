@@ -8,6 +8,7 @@ from apps.users.api.views import (
     UserForgotPasswordApi,
     UserResetPasswordValidateAPI,
     UserResetPasswordApi,
+    UserLoginWithGoogleApi,
 )
 
 urlpatterns = [
@@ -22,4 +23,5 @@ urlpatterns = [
         name="validate-reset_password",
     ),
     path("reset-password/<str:token>/", UserResetPasswordApi.as_view(), name="reset-password"),
+    path("social/google/", UserLoginWithGoogleApi.as_view(), name="login-with-google"),
 ]

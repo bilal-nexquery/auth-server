@@ -35,11 +35,14 @@ SECRET_KEY = env("SECRET_KEY")
 DEBUG = env("DEBUG", cast=bool)
 PROD = env("PROD", cast=bool)
 
-FRONTEND_BASE_URL = env("FRONTEND_BASE_URL")
-BACKEND_BASE_URL = env("BACKEND_BASE_URL")
+BASE_FRONTEND_URL = env("BASE_FRONTEND_URL")
+BASE_BACKEND_URL = env("BASE_BACKEND_URL")
 
 SEND_EMAIL_HOST = env("SEND_EMAIL_HOST")
 SEND_EMAIL_PASSWORD = env("SEND_EMAIL_PASSWORD")
+
+GOOGLE_OAUTH2_CLIENT_ID = env("GOOGLE_OAUTH2_CLIENT_ID")
+GOOGLE_OAUTH2_CLIENT_SECRET = env("GOOGLE_OAUTH2_CLIENT_SECRET")
 
 ALLOWED_HOSTS = ["*"]
 
@@ -134,7 +137,6 @@ EMAIL_TLS_CA_CERTS = None
 EMAIL_SSL_VERSION = SSL_VERSION
 EMAIL_TLS_VERSION = SSL_VERSION
 
-
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 if PROD is False:
@@ -222,7 +224,6 @@ MEDIA_ROOT = BASE_DIR / "media"
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
 ]
-
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field

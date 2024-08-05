@@ -1,3 +1,4 @@
+import time
 from urllib.parse import urlencode
 
 from django.http import Http404, JsonResponse
@@ -194,4 +195,5 @@ class UserLoginWithGoogleApi(BaseAPIView):
         response.set_cookie("refreshToken", tokens.get("refresh"), samesite='None', secure=True, domain=".railway.app")
         response.set_cookie("oAuth", True, samesite='None', secure=True, domain=".railway.app")
 
+        time.sleep(2)
         return response

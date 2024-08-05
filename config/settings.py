@@ -211,6 +211,10 @@ USE_TZ = True
 CORS_ALLOWED_ORIGINS = ["https://auth-client-psi.vercel.app", "http://localhost:3000"]
 CORS_ALLOW_CREDENTIALS = True
 
+# Cookie settings
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 

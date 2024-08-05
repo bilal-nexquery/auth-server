@@ -30,7 +30,9 @@ def user_get(*, username: str) -> User:
 
 def user_check_social_account(*, user: User):
     if user.is_social:
-        raise Http404("This email is linked with a social account please set the password using reset password first.")
+        raise Http404(
+            "This email is linked with a social account please set the password using reset password first."
+        )
 
 
 def user_check_password(*, user: User, password: str) -> bool:
@@ -58,7 +60,7 @@ def reset_password_create_or_update(*, unique_identifier: str, user: User):
 
 
 def get_email_content_for_forgot_password(
-        *, user: User, reset_password_link: str
+    *, user: User, reset_password_link: str
 ) -> tuple[str, str]:
     subject = "Subject : Reset Your Password"
     message = (

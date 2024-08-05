@@ -1,7 +1,6 @@
-import time
 from urllib.parse import urlencode
 
-from django.http import Http404, JsonResponse
+from django.http import Http404
 from django.shortcuts import redirect
 from django.urls import reverse
 from rest_framework import serializers, status
@@ -21,7 +20,8 @@ from apps.users.services import (
     reset_password_get,
     reset_password_validation,
     GoogleOAuth2FlowService,
-    user_get_or_create_oauth, user_check_social_account,
+    user_get_or_create_oauth,
+    user_check_social_account,
 )
 from config import settings
 
@@ -181,19 +181,15 @@ class UserLoginWithGoogleApi(BaseAPIView):
         user_data = google_login.get_user_info(access_token=access_token)
 
         username = google_login.create_username_from_google_response(user_data=user_data)
-        user_profile_data = {
-            'email': user_data['email'],
-            'username': username,
-            "is_social": True
-        }
+        user_profile_data = {'email': user_data['email'], 'username': username, "is_social": True}
 
         user = user_get_or_create_oauth(user_profile_data=user_profile_data)
         tokens = get_tokens_for_user(user=user)
 
         response = redirect(settings.BASE_FRONTEND_URL)
-        response.set_cookie("accessToken", tokens.get("access"), samesite='None', secure=True, domain=".railway.app")
-        response.set_cookie("refreshToken", tokens.get("refresh"), samesite='None', secure=True, domain=".railway.app")
+        # This will not set cookies in browser due to limitation of free server we are using to host front-end
+        response.set_cookie("accessToken", tokens.get("access"), samesite='None', secure=True)
+        response.set_cookie("refreshToken", tokens.get("refresh"), samesite='None', secure=True)
         response.set_cookie("oAuth", True, samesite='None', secure=True, domain=".railway.app")
 
-        time.sleep(2)
         return response

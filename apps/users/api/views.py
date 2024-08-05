@@ -191,8 +191,8 @@ class UserLoginWithGoogleApi(BaseAPIView):
 
         # response = redirect(settings.BASE_FRONTEND_URL)
         response = JsonResponse({'message': 'Logged in successfully.'})
-        response.set_cookie("accessToken", tokens.get("access"), samesite='None', secure=True)
-        response.set_cookie("refreshToken", tokens.get("refresh"), samesite='None', secure=True)
-        response.set_cookie("oAuth", True, samesite='None', secure=True)
+        response.set_cookie("accessToken", tokens.get("access"), samesite='None', secure=True, domain=".railway.app")
+        response.set_cookie("refreshToken", tokens.get("refresh"), samesite='None', secure=True, domain=".railway.app")
+        response.set_cookie("oAuth", True, samesite='None', secure=True, domain=".railway.app")
 
         return response

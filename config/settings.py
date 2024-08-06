@@ -72,10 +72,8 @@ INSTALLED_APPS = DEFAULT_APPS + THIRD_PARTY_APPS + PROJECT_APPS
 
 AUTH_USER_MODEL = "users.User"
 
-CSRF_TRUSTED_ORIGINS = ['https://*.railway.app']
-
 # Cors configuration
-CORS_ALLOWED_ORIGINS = ["https://auth-client-psi.vercel.app", "http://localhost:3000"]
+CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True
 
 MIDDLEWARE = [
